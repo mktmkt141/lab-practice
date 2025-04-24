@@ -30,17 +30,17 @@
 - vm0での編集内容をvm1から見る
 - vm1での編集内容をvm0から見る
 
-**vm0(NFSサーバ)の設定**
+**vm0(NFSサーバ)の設定**<br>
 `sudo yum install nfs-utils -y`<br>
 `sudo mkdir -p /home/admin/nfs_share`←/home/admin以下に共有するリポジトリを作成する。<br>
 `sudo chmod -R 755 /home/admin/nfs_share`←権限を変更、rootユーザに対して読み取り、書き取り、実行を許可。rootグループに所属するユーザー、その他のユーザーに読み取りと実行を許可。<br>
 `sudo nano /etc/exports`<br>←nfsサーバがクライアントに共有するディレクトリの一覧を記述したファイルである「/etc/exports」に設定を記述する。<br>
 ```conf
 # /etc/exports
-/home/admin/nfs_share 192.168.20.230(rw,sync,no_root_squash)<br>
+/home/admin/nfs_share 192.168.20.230(rw,sync,no_root_squash)
 ```
 
-`sudo systemctl enable --now nfs-server`←サーバの起動
+`sudo systemctl enable --now nfs-server`←サーバの起動<br>
 `sudo firewall-cmd --add-service=nfs --permanent`<br>
 `sudo firewall-cmd --reload`←nfsサーバがファイアウォールにブロックされないように設定し、反映させる<br>
 `echo "hello from 229" | sudo tee /home/admin/nfs_share/test.txt`←/home/admin/nfs_share/test.txtに「hello from 229」という内容を書き込み、標準出力に内容を表示させる<br>
