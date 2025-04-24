@@ -58,6 +58,8 @@
 `echo "Hello from client" | sudo tee /mnt/nfs_mount/hello.txt`←vm1で/mnt/nfs_mount/hello.txtに「Hello from client」と記述した<br>
 **vm0の設定**<br>
 `cat /home/admin/nfs_share/hello.txt`←vm1で作った内容をvm0の上で見ることが出来た<br>
+![image](https://github.com/user-attachments/assets/575cfbcc-588f-46c8-84b9-7b2d5f1002c5)
+
 
 
 
