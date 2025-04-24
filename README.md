@@ -55,7 +55,7 @@
 **次は、vm1(クライアント)で作った内容をvm0(サーバ)でみられるようにする**<br>
 
 **vm1の設定**<br>
-`echo "Hello from client" | sudo tee /mnt/nfs_mount/hello.txt`<br>←vm1で/mnt/nfs_mount/hello.txtに「Hello from client」と記述した<br>
+`echo "Hello from client" | sudo tee /mnt/nfs_mount/hello.txt`←vm1で/mnt/nfs_mount/hello.txtに「Hello from client」と記述した<br>
 **vm0の設定**<br>
 `cat /home/admin/nfs_share/hello.txt`←vm1で作った内容をvm0の上で見ることが出来た<br>
 
