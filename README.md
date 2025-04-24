@@ -34,7 +34,7 @@
 `sudo yum install nfs-utils -y`<br>
 `sudo mkdir -p /home/admin/nfs_share`←/home/admin以下に共有するリポジトリを作成する。<br>
 `sudo chmod -R 755 /home/admin/nfs_share`←権限を変更、rootユーザに対して読み取り、書き取り、実行を許可。rootグループに所属するユーザー、その他のユーザーに読み取りと実行を許可。<br>
-`sudo nano /etc/exports`<br>←nfsサーバがクライアントに共有するディレクトリの一覧を記述したファイルである「/etc/exports」に設定を記述する。<br>
+`sudo nano /etc/exports`←nfsサーバがクライアントに共有するディレクトリの一覧を記述したファイルである「/etc/exports」に設定を記述する。<br>
 ```conf
 # /etc/exports
 /home/admin/nfs_share 192.168.20.230(rw,sync,no_root_squash)
