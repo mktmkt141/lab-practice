@@ -60,6 +60,34 @@
 `cat /home/admin/nfs_share/hello.txt`←vm1で作った内容をvm0の上で見ることが出来た<br>
 ![image](https://github.com/user-attachments/assets/575cfbcc-588f-46c8-84b9-7b2d5f1002c5)
 
+### 🔹 課題3：LDAP/SSSD　構築
+
+**LDAP設定**<br>
+vm0をldapサーバ、vm1をldapクライアントとした。
+1.OpenLdapサーバの構築<br>
+`sudo dnf install epel-release`←epleリポジトリ（yum等にはないパッケージををインストールするためのサードパーティーリポジトリ)のインストールを行う<br>
+`sudo yum -y install openldap*`←opneldap関連のパッケージをまとめてインストールするためのコマンド<br>
+`sudo slappasswd`←ldap管理者用のパスワードをを暗号化形式で発行する<br>
+`sudo nano ldaproot.ldif`←LDAPの管理者アカウントをなどを設定するためのldifファイルを作成する<br>
+`sudo ldapmodify -Y EXTERNAL -H ldapi:/// -f ldaproot.ldif`←ldaproot.ldifファイルをldapサーバに反映させる<br>
+ここまでがldapサーバの設定内容（管理者パスワード、ドメイン名の設定を行った）<br>
+
+ここから、ssl/tlsの設定を行う。<br>
+`sudo nano /etc/ssl/openssl.conf`←証明書生成時に使用する設定ファイルを編集する<br>
+`sudo openssl genrsa -aes128 -out /etc/pki/tls/certs/server.key 2048`←秘密鍵を作成し、`/etc/pki/tls/certs`に出力<br>
+`sudo openssl rsa -in server.key -out server.key`←パスフレーズを除去した秘密鍵に変換する（ldapサーバ起動時にパスフレーズ入力を求められないようにするため）<br>
+`sudo openssl req -utf8 -new -key server.key -out server.csr`←秘密鍵を使って、証明書署名要求（csrファイル）を作成する<br>
+`sudo openssl x509 -in server.csr -out server.crt -req -signkey server.key -extfile /etc/ssl/openssl.cnf -extensions example.com -days 3650`←証明書の有効期限を10年に設定した。また、csrに対して自己署名し、サーバ証明書を作成する<br>
+`sudo cp /etc/pki/tls/certs/{server.key,server.crt} /etc/openldap/certs/`←作成した秘密鍵を・証明書ldapサーバ専用のディレクトリ`/etc/openldap/certs/`に配置する<br>
+`chown ldap:ldap /etc/openldap/certs/{server.key,server.crt}`←ファイルの所有者をldapユーザとグループに変更する（slapdが読み取れるようにするため）<br>
+`nano mod_ssl.ldif`←ldapサーバにssl/tlsを有効化する設定を書いたldifファイルを作成する<br>
+`sudo ldapmodify -Y EXTERNAL -H ldapi:/// -f mod_ssl.ldif`←mod_ssl/ldifを読み込んで、ssl/tlsを有効化する設定をサーバに反映させる<br>
+
+`sudo slappaswd`←
+
+
+
+
 
 
 
