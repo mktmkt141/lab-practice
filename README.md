@@ -73,7 +73,9 @@ ldaproot.ldifの中身はこちらです。<br>
 まずは、olcsuffixでldapディレクトリの検索ベースDN（ディレクトリルート）を指定する。dc=example、dc=comがルートになる。ここにldapに登録されるデータが集まる。oldrootdnで管理者dnの設定をする。ldap行う際のログインid的なものを作る。次に、olcrootpwでolcrootdnに対応するパスワードのハッシュを設定する。
 `sudo ldapmodify -Y EXTERNAL -H ldapi:/// -f ldaproot.ldif`←ldaproot.ldifファイルをldapサーバに反映させる<br>
 以下の図が、ldapのディレクトリ構成図<br>
-![Uploading image.png…]()
+![image](https://github.com/user-attachments/assets/16225404-3713-48fd-9bc3-9a9f88a02a93)
+
+
 
 ここまでがldapサーバの設定内容<br>
 
