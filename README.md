@@ -63,17 +63,23 @@
 ### 🔹 課題3：LDAP/SSSD　構築
 
 **LDAP設定**<br>
-vm0をldapサーバ、vm1をldapクライアントとした。
+vm0(229)をldapサーバ、vm1(230)、vm2(201)、vm3(202)をldapクライアントとした。
 1.OpenLdapサーバの構築<br>
 `sudo dnf install epel-release`←epleリポジトリ（yum等にはないパッケージををインストールするためのサードパーティーリポジトリ)のインストールを行う<br>
 `sudo yum -y install openldap*`←opneldap関連のパッケージをまとめてインストールするためのコマンド<br>
 `sudo slappasswd`←ldap管理者用のパスワードをを暗号化形式で発行する<br>
-`sudo nano ldaproot.ldif`←LDAPの管理者アカウントをなどを設定するためのldifファイルを作成する<br>
+`sudo nano ldaproot.ldif`←openldapの設定情報に関するldifファイルを作成する<br>
+ldaproot.ldifの中身はこちらです。<br>
+まずは、olcsuffixでldapディレクトリの検索ベースDN（ディレクトリルート）を指定する。dc=example、dc=comがルートになる。ここにldapに登録されるデータが集まる。oldrootdnで管理者dnの設定をする。ldap行う際のログインid的なものを作る。次に、olcrootpwでolcrootdnに対応するパスワードのハッシュを設定する。
 `sudo ldapmodify -Y EXTERNAL -H ldapi:/// -f ldaproot.ldif`←ldaproot.ldifファイルをldapサーバに反映させる<br>
-ここまでがldapサーバの設定内容（管理者パスワード、ドメイン名の設定を行った）<br>
+以下の図が、ldapのディレクトリ構成図<br>
+![Uploading image.png…]()
+
+ここまでがldapサーバの設定内容<br>
 
 ここから、ssl/tlsの設定を行う。<br>
 `sudo nano /etc/ssl/openssl.conf`←証明書生成時に使用する設定ファイルを編集する<br>
+ここでは、証明書のsan(この証明書はどのホストで使えるかに関する設定)を設定した。←ここでは、どのホストでこの証明書を使えるかを定義している。また、dlp.example.comでというホスト名で証明書を指定している。
 `sudo openssl genrsa -aes128 -out /etc/pki/tls/certs/server.key 2048`←秘密鍵を作成し、`/etc/pki/tls/certs`に出力<br>
 `sudo openssl rsa -in server.key -out server.key`←パスフレーズを除去した秘密鍵に変換する（ldapサーバ起動時にパスフレーズ入力を求められないようにするため）<br>
 `sudo openssl req -utf8 -new -key server.key -out server.csr`←秘密鍵を使って、証明書署名要求（csrファイル）を作成する<br>
