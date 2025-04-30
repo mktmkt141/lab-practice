@@ -70,7 +70,7 @@ vm0(229)をldapサーバ、vm1(230)、vm2(201)、vm3(202)をldapクライアン�
 `sudo slappasswd`←ldap管理者用のパスワードをを暗号化形式で発行する<br>
 `sudo nano ldaproot.ldif`←openldapの設定情報に関するldifファイルを作成する<br>
 ldaproot.ldifの中身はこちらです。<br>
-まずは、olcsuffixでldapディレクトリの検索ベースDN（ディレクトリルート）を指定する。dc=example、dc=comがルートになる。ここにldapに登録されるデータが集まる。oldrootdnで管理者dnの設定をする。ldap行う際のログインid的なものを作る。次に、olcrootpwでolcrootdnに対応するパスワードのハッシュを設定する。
+まずは、olcsuffixでldapディレクトリの検索ベースDN（ディレクトリルート）を指定する。dc=example、dc=comがルートになる。ここにldapに登録されるデータが集まる。oldrootdnで管理者dnの設定をする。ldap行う際のログインid的なものを作る。次に、olcrootpwでolcrootdnに対応するパスワードのハッシュを設定する。<br>
 `sudo ldapmodify -Y EXTERNAL -H ldapi:/// -f ldaproot.ldif`←ldaproot.ldifファイルをldapサーバに反映させる<br>
 以下の図が、ldapのディレクトリ構成図<br>
 ![image](https://github.com/user-attachments/assets/16225404-3713-48fd-9bc3-9a9f88a02a93)
