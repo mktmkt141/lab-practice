@@ -64,18 +64,24 @@
 
 **LDAP設定**<br>
 vm0(229)をldapサーバ、vm1(230)、vm2(201)、vm3(202)をldapクライアントとした。
-1.OpenLdapサーバの構築<br>
+#### OpenLdapサーバの構築<br>
 `sudo dnf install epel-release`←epleリポジトリ（yum等にはないパッケージををインストールするためのサードパーティーリポジトリ)のインストールを行う<br>
 `sudo yum -y install openldap*`←opneldap関連のパッケージをまとめてインストールするためのコマンド<br>
 `sudo slappasswd`←ldap管理者用のパスワードをを暗号化形式で発行する<br>
+`sudo nano chrootpw.ldif`<br>
+`sudo ldapadd -Y EXTERNAL -H ldapi:/// -f chrootpw.ldif`<br>
 `sudo nano ldaproot.ldif`←openldapの設定情報に関するldifファイルを作成する<br>
 ldaproot.ldifの中身はこちらです。<br>
 まずは、olcsuffixでldapディレクトリの検索ベースDN（ディレクトリルート）を指定する。dc=example、dc=comがルートになる。ここにldapに登録されるデータが集まる。oldrootdnで管理者dnの設定をする。ldap行う際のログインid的なものを作る。次に、olcrootpwでolcrootdnに対応するパスワードのハッシュを設定する。<br>
 `sudo ldapmodify -Y EXTERNAL -H ldapi:/// -f ldaproot.ldif`←ldaproot.ldifファイルをldapサーバに反映させる<br>
+続いて、自分のドメイン名の設定と、基本的なスキーマの読み込みを行う。<br>
+`ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/cosine.ldif`<br>
+`ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/nis.ldif`<br>
+`ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/inetorgperson.ldif`<br>
+`sudo nano basedomain.ldif`<br>
+`sudo ldapadd -x -D "cn=admin,dc=example,dc=com" -W -f basedomain.ldif`<br>
 以下の図が、ldapのディレクトリ構成図<br>
 ![image](https://github.com/user-attachments/assets/16225404-3713-48fd-9bc3-9a9f88a02a93)
-
-
 
 ここまでがldapサーバの設定内容<br>
 
@@ -90,8 +96,58 @@ ldaproot.ldifの中身はこちらです。<br>
 `chown ldap:ldap /etc/openldap/certs/{server.key,server.crt}`←ファイルの所有者をldapユーザとグループに変更する（slapdが読み取れるようにするため）<br>
 `nano mod_ssl.ldif`←ldapサーバにssl/tlsを有効化する設定を書いたldifファイルを作成する<br>
 `sudo ldapmodify -Y EXTERNAL -H ldapi:/// -f mod_ssl.ldif`←mod_ssl/ldifを読み込んで、ssl/tlsを有効化する設定をサーバに反映させる<br>
+`sudo firewall-cmd --add-service={ldap,ldaps}`←ファイアウォールの設定を行う。
 
-`sudo slappaswd`←
+ここから、サーバにユーザーを登録していく。<br>
+`sudo slappaswd`←ユーザのパスワードの設定を行う。<br>
+`nano ldapuser.ldif`←ユーザー名をmktにして登録<br>
+`sudo ldapadd -x -D "cn=admin,dc=example,dc=com" -W -f ldapuser.ldif`<br>
+**ここでは、mktという名前のユーザーを登録した。**<br>
+
+
+#### クライアントの設定（230,201,202側の設定）<br>
+`sudo dnf -y install openldap-clients sssd sssd-ldap oddjob-mkhomedir`<br>
+`sudo authselect select sssd with-mkhomedir --force`<br>
+`sudo nano /etc/sssd/sssd.conf`<br>
+`sudo chmod 600 /etc/sssd/sssd.conf`<br>
+`sudo systemctl restart sssd oddjobd`<br>
+`sudo systemctl enable ssd oddjobd`<br>
+
+
+#### クライアントからmktでログインできるかを確認<br>
+`su - mkt`←mktにユーザを変更<br>
+全てのvmから同じコマンドでログインできるかを確認する。<br>
+#### セキュアな通信が行えるかを確認する<br>
+→「ldaps://~」でldapsearcできるかを確認する。<br>
+何もしていない段階で、` ldapsearch -H ldaps://dlp.example.com -D "cn=admin,dc=example,dc=com" -W -b "dc=example,dc=com"`を実行すると、自己証明書をクライアント側に信頼させることと、名前解決ができていないため、エラーが吐かれる。<br>
+
+そこで、229（サーバ側）で<br>
+`scp /etc/openldap/certs/server.crt admin@192.168.20.230:/tmp/`<br>
+を打ち、次にクライアント側で<br>
+`sudo mv /tmp/server.crt /etc/pki/ca-trust/source/anchors/ldap-server.crt`<br>
+を打った。さらに、<br>
+`sudo nano /etc/openldap/ldap.conf`<br>
+を打ち、証明書の設定を記述した。<br>
+さらに、/etc/hostsファイルで以下のように設定を追加した。<br>
+`のように名前解決がうまくいっていなかったので、クライアント側の
+/etc/hostsに以下の行を追加した<br>
+192.168.20.229  dlp.example.com<br>
+
+その後に<br>
+` ldapsearch -H ldaps://dlp.example.com -D "cn=admin,dc=example,dc=com" -W -b "dc=example,dc=com"`<br?
+を打ち、正常な出力が得られたので、セキュアな通信が上手くいったことが確認できた。<br>
+今までの設定を202、201のvmの中でも同様にする。<br>
+
+#### 動機状態の確認<br>
+サーバ（229）でパスワードの変更を行い、その変更がクライアント（201、202、230）で反映されているかを確認した。<br>
+まずは以下のようにサーバ側でコマンドを打った。<br>
+`ldappasswd -H ldap://localhost -x -D "cn=admin,dc=example,dc=com" -W -S "uid=mkt,ou=People,dc=example,dc=com"`<br>
+ここで新しくパスワードを設定した。<br>
+その後に、クライアント側から<br>
+`su - mkt`<br>
+このコマンドで新しいパスワードを使ってログインできるかを確認した。<br>
+
+
 
 
 
