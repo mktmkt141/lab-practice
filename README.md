@@ -68,18 +68,18 @@ vm0(229)をldapサーバ、vm1(230)、vm2(201)、vm3(202)をldapクライアン�
 `sudo dnf install epel-release`←epleリポジトリ（yum等にはないパッケージををインストールするためのサードパーティーリポジトリ)のインストールを行う<br>
 `sudo yum -y install openldap*`←opneldap関連のパッケージをまとめてインストールするためのコマンド<br>
 `sudo slappasswd`←ldap管理者用のパスワードをを暗号化形式で発行する<br>
-`sudo nano chrootpw.ldif`<br>
-`sudo ldapadd -Y EXTERNAL -H ldapi:/// -f chrootpw.ldif`<br>
+`sudo nano chrootpw.ldif`<br>←ldapの管理者のパスワードを設定、管理するファイルの編集<br>
+`sudo ldapadd -Y EXTERNAL -H ldapi:/// -f chrootpw.ldif`←管理者パスワードの更新<br>
 `sudo nano ldaproot.ldif`←openldapの設定情報に関するldifファイルを作成する<br>
 ldaproot.ldifの中身はこちらです。<br>
-まずは、olcsuffixでldapディレクトリの検索ベースDN（ディレクトリルート）を指定する。dc=example、dc=comがルートになる。ここにldapに登録されるデータが集まる。oldrootdnで管理者dnの設定をする。ldap行う際のログインid的なものを作る。次に、olcrootpwでolcrootdnに対応するパスワードのハッシュを設定する。<br>
+まずは、olcsuffixでldapディレクトリの検索ベースDN（ディレクトリルート）を指定する。dc=example、dc=comがルートになる。ここにldapに登録されるデータが集まる。olcrootdnで管理者dnの設定をする。ldap行う際のログインid的なものを作る。次に、olcrootpwでolcrootdnに対応するパスワードのハッシュを設定する。<br>
 `sudo ldapmodify -Y EXTERNAL -H ldapi:/// -f ldaproot.ldif`←ldaproot.ldifファイルをldapサーバに反映させる<br>
 続いて、自分のドメイン名の設定と、基本的なスキーマの読み込みを行う。<br>
-`ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/cosine.ldif`<br>
-`ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/nis.ldif`<br>
-`ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/inetorgperson.ldif`<br>
+`ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/cosine.ldif`←古くからあるldapの基本属性定義<br>
+`ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/nis.ldif`←unixユーザの情報管理に必要な属性定義<br>
+`ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/inetorgperson.ldif`←一般的な人の情報を表すオブジェクトクラスの追加<br>
 `sudo nano basedomain.ldif`<br>
-`sudo ldapadd -x -D "cn=admin,dc=example,dc=com" -W -f basedomain.ldif`<br>
+`sudo ldapadd -x -D "cn=admin,dc=example,dc=com" -W -f basedomain.ldif`←ldapのデータツリーのルートの定義、その反映<br>
 以下の図が、ldapのディレクトリ構成図<br>
 ![image](https://github.com/user-attachments/assets/16225404-3713-48fd-9bc3-9a9f88a02a93)
 
@@ -106,12 +106,12 @@ ldaproot.ldifの中身はこちらです。<br>
 
 
 #### クライアントの設定（230,201,202側の設定）<br>
-`sudo dnf -y install openldap-clients sssd sssd-ldap oddjob-mkhomedir`<br>
-`sudo authselect select sssd with-mkhomedir --force`<br>
-`sudo nano /etc/sssd/sssd.conf`<br>
-`sudo chmod 600 /etc/sssd/sssd.conf`<br>
-`sudo systemctl restart sssd oddjobd`<br>
-`sudo systemctl enable ssd oddjobd`<br>
+`sudo dnf -y install openldap-clients sssd sssd-ldap oddjob-mkhomedir`←ldapとsssdによる認証に必要なパッケージの追加。openldap-clientsとはldapsearchやldapaddなどldapサーバとやりとりするためのツール。sssdとは、ldapなどと連携して認証を行う仕組み。sssd-ldapとはsssdがldapと連携するためのモジュール。oddjob-mkhomedirとはログイン時に自動的にホームディレクトリを作るデーモン。<br>
+`sudo authselect select sssd with-mkhomedir --force`←pam設定をsssdベースに切り替え、mkhomedirを有効にする。<br>
+`sudo nano /etc/sssd/sssd.conf`←sssdがどのldapサーバを使うかの設定<br>
+`sudo chmod 600 /etc/sssd/sssd.conf`←権限変更。<br>
+`sudo systemctl restart sssd oddjobd`←sssdとoddjobdの再起動<br>
+`sudo systemctl enable ssd oddjobd`←二つのデーモンの自動起動設定<br>
 
 
 #### クライアントからmktでログインできるかを確認<br>
@@ -122,14 +122,14 @@ ldaproot.ldifの中身はこちらです。<br>
 何もしていない段階で、` ldapsearch -H ldaps://dlp.example.com -D "cn=admin,dc=example,dc=com" -W -b "dc=example,dc=com"`を実行すると、自己証明書をクライアント側に信頼させることと、名前解決ができていないため、エラーが吐かれる。<br>
 
 そこで、229（サーバ側）で<br>
-`scp /etc/openldap/certs/server.crt admin@192.168.20.230:/tmp/`<br>
+`scp /etc/openldap/certs/server.crt admin@192.168.20.230:/tmp/`←サーバにある証明書をクライアントへ転送している<br>
 を打ち、次にクライアント側で<br>
-`sudo mv /tmp/server.crt /etc/pki/ca-trust/source/anchors/ldap-server.crt`<br>
+`sudo mv /tmp/server.crt /etc/pki/ca-trust/source/anchors/ldap-server.crt`←受け取った証明書を信頼できる場所へ追加<br>
 を打った。さらに、<br>
-`sudo nano /etc/openldap/ldap.conf`<br>
-を打ち、証明書の設定を記述した。<br>
-さらに、/etc/hostsファイルで以下のように設定を追加した。<br>
-`のように名前解決がうまくいっていなかったので、クライアント側の
+`sudo nano /etc/openldap/ldap.conf`←サーバ名や証明書の技術を行った<br>
+を打ち、証明書の設定を記述した。ここでは、クライアントでサーバのssl/tls証明書を信頼させるための設定を行った。<br>
+さらに、クライアント側の/etc/hostsファイルで以下のように設定を追加した。<br>
+
 /etc/hostsに以下の行を追加した<br>
 192.168.20.229  dlp.example.com<br>
 
