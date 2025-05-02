@@ -80,7 +80,10 @@ ldaproot.ldifの中身はこちらです。<br>
 `ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/inetorgperson.ldif`←一般的な人の情報を表すオブジェクトクラスの追加<br>
 `sudo nano basedomain.ldif`<br>
 `sudo ldapadd -x -D "cn=admin,dc=example,dc=com" -W -f basedomain.ldif`←ldapのデータツリーのルートの定義、その反映<br>
+
+
 以下の図が、ldapのディレクトリ構成図<br>
+dc:ドメイン名の構成要素　ou:組織内のグループ、カテゴリを表す　dn:ldapのエントリを一意に識別するパス　cn:人、サービス、グループなどの名前(taro yamadaなど)
 ![image](https://github.com/user-attachments/assets/16225404-3713-48fd-9bc3-9a9f88a02a93)
 
 ここまでがldapサーバの設定内容<br>
