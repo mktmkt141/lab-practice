@@ -186,6 +186,7 @@ export MPIROOT PATH LD_LIBRARY_PATH MANPATH<br>
 `sudo chown admin:admin DATA` <br>
 
 `sudo nano /etc/exports`<br>
+以下のように/etc/exportsを編集する<br>
 /home/admin/DATA    192.168.20.0/24(rw,sync,no_subtree_check)<br>
 
 `sudo exportfs -ra`  <br>
@@ -198,7 +199,8 @@ export MPIROOT PATH LD_LIBRARY_PATH MANPATH<br>
 `sudo dnf install -y nfs-utils`<br>
 `sudo mkdir DATA`<br>
 `sudo nano /etc/fstab`<br>
-`192.168.20.229:/DATA   /DATA   nfs   defaults,_netdev   0  0<br>
+以下のように/etc/fstabを編集する<br>
+192.168.20.229:/DATA   /DATA   nfs   defaults,_netdev   0  0<br>
 192.168.20.229:/home/admin/DATA   /DATA   nfs   defaults,_netdev   0  0`<br>
 `sudo systemctl daemon-reexec`<br>
 `sudo systemctl daemon-reload`<br>
@@ -206,7 +208,7 @@ export MPIROOT PATH LD_LIBRARY_PATH MANPATH<br>
 
 マウントの設定を行う。<br>
 この後に、229のサーバで<br>
-`ssh-keygen`<br>  # Enterキー連打でOK
+`ssh-keygen`<br>  # Enterキー連打でOK<br>
 `ssh-copy-id admin@192.168.20.201`<br>
 `ssh-copy-id admin@192.168.20.204`<br>
 `ssh-copy-id admin@192.168.20.230`<br>
