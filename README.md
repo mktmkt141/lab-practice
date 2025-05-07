@@ -210,8 +210,10 @@ export MPIROOT PATH LD_LIBRARY_PATH MANPATH<br>
 `sudo mkdir DATA`<br>
 `sudo nano /etc/fstab`<br>
 以下のように/etc/fstabを編集する<br>
+```conf
 192.168.20.229:/DATA   /DATA   nfs   defaults,_netdev   0  0<br>
 192.168.20.229:/home/admin/DATA   /DATA   nfs   defaults,_netdev   0  0<br>
+```
 `sudo systemctl daemon-reexec`<br>
 `sudo systemctl daemon-reload`<br>
 `sudo mount /DATA`<br>
