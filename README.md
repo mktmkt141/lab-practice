@@ -169,13 +169,13 @@ dc:ドメイン名の構成要素　ou:組織内のグループ、カテゴリ�
 `sudo make install`<br>
 `sudo nano ~/.bashrc`<br>
 一番下に以下の内容を追加する<br>
-export PATH=/usr/lib64/openmpi/bin:$PATH
-export LD_LIBRARY_PATH=/usr/lib64/openmpi/lib:$LD_LIBRARY_PATH
-MPIROOT=/usr/local/openmpi-4.0.7
-PATH=$MPIROOT/bin:$PATH
-LD_LIBRARY_PATH=$MPIROOT/lib:$LD_LIBRARY_PATH
-MANPATH=$MPIROOT/share/man:$MANPATH
-export MPIROOT PATH LD_LIBRARY_PATH MANPATH
+export PATH=/usr/lib64/openmpi/bin:$PATH<br>
+export LD_LIBRARY_PATH=/usr/lib64/openmpi/lib:$LD_LIBRARY_PATH<br>
+MPIROOT=/usr/local/openmpi-4.0.7<br>
+PATH=$MPIROOT/bin:$PATH<br>
+LD_LIBRARY_PATH=$MPIROOT/lib:$LD_LIBRARY_PATH<br>
+MANPATH=$MPIROOT/share/man:$MANPATH<br>
+export MPIROOT PATH LD_LIBRARY_PATH MANPATH<br>
 そして、設定を変更。<br>
 `source ~/.bashrc`<br>
 
@@ -213,10 +213,10 @@ export MPIROOT PATH LD_LIBRARY_PATH MANPATH
 のようにパスワードなしで他のマシンに入れるようにする。<br>
 この作業を他のマシンでも行う。<br>
 また、hostfileで以下のように編集する。<br>
-`192.168.20.229 slots=1<br>
+192.168.20.229 slots=1<br>
 192.168.20.201 slots=1<br>
 192.168.20.204 slots=1<br>
-192.168.20.230 slots=1`<br>
+192.168.20.230 slots=1<br>
 
 ここでは、各マシンのプロセスを1に設定した。<br>
 その後、コンパイする。<br>
