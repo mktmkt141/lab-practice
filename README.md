@@ -160,15 +160,15 @@ dc:ドメイン名の構成要素　ou:組織内のグループ、カテゴリ�
 **MPIインストール**
 [ここからインストール](https://www.open-mpi.org/)<br>
 ローカルマシンから各vmにたいしてscpする。<br>
-`sudo dnf install openmpi openmpi-devel -y`
-`tar -xvf openmpi-4.0.7.tar.gz`
-`sudo yum install -y perl`
-`sudo dnf install -y gcc-gfortran`
-`./configure --prefix=/usr/local/openmpi-4.0.7 CC=gcc CXX=g++ FC=gfortran`
-`make all`
-`sudo make install`
-`sudo nano ~/.bashrc`
-一番下に以下の内容を追加する
+`sudo dnf install openmpi openmpi-devel -y`<br>
+`tar -xvf openmpi-4.0.7.tar.gz`<br>
+`sudo yum install -y perl`<br>
+`sudo dnf install -y gcc-gfortran`<br>
+`./configure --prefix=/usr/local/openmpi-4.0.7 CC=gcc CXX=g++ FC=gfortran`<br>
+`make all`<br>
+`sudo make install`<br>
+`sudo nano ~/.bashrc`<br>
+一番下に以下の内容を追加する<br>
 export PATH=/usr/lib64/openmpi/bin:$PATH
 export LD_LIBRARY_PATH=/usr/lib64/openmpi/lib:$LD_LIBRARY_PATH
 MPIROOT=/usr/local/openmpi-4.0.7
@@ -177,7 +177,7 @@ LD_LIBRARY_PATH=$MPIROOT/lib:$LD_LIBRARY_PATH
 MANPATH=$MPIROOT/share/man:$MANPATH
 export MPIROOT PATH LD_LIBRARY_PATH MANPATH
 そして、設定を変更。<br>
-`source ~/.bashrc`
+`source ~/.bashrc`<br>
 
 このあとに、nfsの設定を行う。<br>
 229のサーバで<br>
@@ -198,8 +198,8 @@ export MPIROOT PATH LD_LIBRARY_PATH MANPATH
 `sudo dnf install -y nfs-utils`<br>
 `sudo mkdir DATA`<br>
 `sudo nano /etc/fstab`<br>
-192.168.20.229:/DATA   /DATA   nfs   defaults,_netdev   0  0
-192.168.20.229:/home/admin/DATA   /DATA   nfs   defaults,_netdev   0  0
+`192.168.20.229:/DATA   /DATA   nfs   defaults,_netdev   0  0<br>
+192.168.20.229:/home/admin/DATA   /DATA   nfs   defaults,_netdev   0  0`<br>
 `sudo systemctl daemon-reexec`<br>
 `sudo systemctl daemon-reload`<br>
 `sudo mount /DATA`<br>
@@ -213,10 +213,10 @@ export MPIROOT PATH LD_LIBRARY_PATH MANPATH
 のようにパスワードなしで他のマシンに入れるようにする。<br>
 この作業を他のマシンでも行う。<br>
 また、hostfileで以下のように編集する。<br>
-192.168.20.229 slots=1
-192.168.20.201 slots=1
-192.168.20.204 slots=1
-192.168.20.230 slots=1
+`192.168.20.229 slots=1<br>
+192.168.20.201 slots=1<br>
+192.168.20.204 slots=1<br>
+192.168.20.230 slots=1`<br>
 
 ここでは、各マシンのプロセスを1に設定した。<br>
 その後、コンパイする。<br>
