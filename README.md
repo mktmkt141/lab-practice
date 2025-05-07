@@ -137,7 +137,10 @@ dc:ドメイン名の構成要素　ou:組織内のグループ、カテゴリ�
 さらに、クライアント側の/etc/hostsファイルで以下のように設定を追加した。<br>
 
 /etc/hostsに以下の行を追加した<br>
+```conf
+#/etc/hosts
 192.168.20.229  dlp.example.com<br>
+```
 
 その後に<br>
 ` ldapsearch -H ldaps://dlp.example.com -D "cn=admin,dc=example,dc=com" -W -b "dc=example,dc=com"`<br?
