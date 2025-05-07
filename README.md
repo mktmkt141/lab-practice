@@ -151,10 +151,79 @@ dc:ドメイン名の構成要素　ou:組織内のグループ、カテゴリ�
 このコマンドで新しいパスワードを使ってログインできるかを確認した。<br>
 
 
+## Part 2：分散システム構築
 
+### 🔹 課題1：MPI環境構築
 
+この課題では、vm4台を用いて並列計算しています。まずは、各マシンでmpiのインストール、コンパイラの設定、サンプルプログラム(NFSを用いた並列計算)の実装を行います。<br>
 
+**MPIインストール**
+[ここからインストール](https://www.open-mpi.org/)<br>
+ローカルマシンから各vmにたいしてscpする。<br>
+`sudo dnf install openmpi openmpi-devel -y`
+`tar -xvf openmpi-4.0.7.tar.gz`
+`sudo yum install -y perl`
+`sudo dnf install -y gcc-gfortran`
+`./configure --prefix=/usr/local/openmpi-4.0.7 CC=gcc CXX=g++ FC=gfortran`
+`make all`
+`sudo make install`
+`sudo nano ~/.bashrc`
+一番下に以下の内容を追加する
+export PATH=/usr/lib64/openmpi/bin:$PATH
+export LD_LIBRARY_PATH=/usr/lib64/openmpi/lib:$LD_LIBRARY_PATH
+MPIROOT=/usr/local/openmpi-4.0.7
+PATH=$MPIROOT/bin:$PATH
+LD_LIBRARY_PATH=$MPIROOT/lib:$LD_LIBRARY_PATH
+MANPATH=$MPIROOT/share/man:$MANPATH
+export MPIROOT PATH LD_LIBRARY_PATH MANPATH
+そして、設定を変更。<br>
+`source ~/.bashrc`
 
+このあとに、nfsの設定を行う。<br>
+229のサーバで<br>
+`sudo dnf install -y nfs-utils`<br>
+`sudo mkdir DATA`<br>
+`sudo chown admin:admin DATA` <br>
 
+`sudo nano /etc/exports`<br>
+`/home/admin/DATA    192.168.20.0/24(rw,sync,no_subtree_check)`<br>
+
+`sudo exportfs -ra`  <br>
+`sudo exportfs -v `  <br>
+`sudo systemctl enable --now nfs-server` <br>
+`sudo firewall-cmd --permanent --zone=public --add-service=nfs`<br>
+`sudo firewall-cmd --reload`<br>
+
+他3台のクライアント側で<br>
+`sudo dnf install -y nfs-utils`<br>
+`sudo mkdir DATA`<br>
+`sudo nano /etc/fstab`<br>
+192.168.20.229:/DATA   /DATA   nfs   defaults,_netdev   0  0
+192.168.20.229:/home/admin/DATA   /DATA   nfs   defaults,_netdev   0  0
+`sudo systemctl daemon-reexec`<br>
+`sudo systemctl daemon-reload`<br>
+`sudo mount /DATA`<br>
+
+マウントの設定を行う。<br>
+この後に、229のサーバで<br>
+`ssh-keygen`<br>  # Enterキー連打でOK
+`ssh-copy-id admin@192.168.20.201`<br>
+`ssh-copy-id admin@192.168.20.204`<br>
+`ssh-copy-id admin@192.168.20.230`<br>
+のようにパスワードなしで他のマシンに入れるようにする。<br>
+この作業を他のマシンでも行う。<br>
+また、hostfileで以下のように編集する。<br>
+192.168.20.229 slots=1
+192.168.20.201 slots=1
+192.168.20.204 slots=1
+192.168.20.230 slots=1
+
+ここでは、各マシンのプロセスを1に設定した。<br>
+その後、コンパイする。<br>
+`mpicc hello.c -o hello`<br>
+`mpicc sum.c -o sum`<br>
+この後にhello worldプログラムと、並列計算用のプログラムを実行する。<br>
+`mpirun --hostfile hostfile ./hello`<br>
+`mpirun --hostfile hostfile ./sum`<br>
 
 
