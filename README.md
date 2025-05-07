@@ -186,7 +186,7 @@ export MPIROOT PATH LD_LIBRARY_PATH MANPATH<br>
 `sudo chown admin:admin DATA` <br>
 
 `sudo nano /etc/exports`<br>
-`/home/admin/DATA    192.168.20.0/24(rw,sync,no_subtree_check)`<br>
+/home/admin/DATA    192.168.20.0/24(rw,sync,no_subtree_check)<br>
 
 `sudo exportfs -ra`  <br>
 `sudo exportfs -v `  <br>
