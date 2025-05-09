@@ -176,13 +176,13 @@ dc:ドメイン名の構成要素　ou:組織内のグループ、カテゴリ�
 `sudo nano ~/.bashrc`<br>
 一番下に以下の内容を追加する<br>
 ```conf
-export PATH=/usr/lib64/openmpi/bin:$PATH<br>
-export LD_LIBRARY_PATH=/usr/lib64/openmpi/lib:$LD_LIBRARY_PATH<br>
-MPIROOT=/usr/local/openmpi-4.0.7<br>
-PATH=$MPIROOT/bin:$PATH<br>
-LD_LIBRARY_PATH=$MPIROOT/lib:$LD_LIBRARY_PATH<br>
-MANPATH=$MPIROOT/share/man:$MANPATH<br>
-export MPIROOT PATH LD_LIBRARY_PATH MANPATH<br>
+export PATH=/usr/lib64/openmpi/bin:$PATH
+export LD_LIBRARY_PATH=/usr/lib64/openmpi/lib:$LD_LIBRARY_PATH
+MPIROOT=/usr/local/openmpi-4.0.7
+PATH=$MPIROOT/bin:$PATH
+LD_LIBRARY_PATH=$MPIROOT/lib:$LD_LIBRARY_PATH
+MANPATH=$MPIROOT/share/man:$MANPATH
+export MPIROOT PATH LD_LIBRARY_PATH MANPATH
 ```
 そして、設定を変更。<br>
 `source ~/.bashrc`<br>
@@ -199,9 +199,9 @@ export MPIROOT PATH LD_LIBRARY_PATH MANPATH<br>
 /home/admin/DATA    192.168.20.0/24(rw,sync,no_subtree_check)<br>
 ```
 
-`sudo exportfs -ra`  <br>
+`sudo exportfs -ra` <br> 
 `sudo exportfs -v `  <br>
-`sudo systemctl enable --now nfs-server` <br>
+`sudo systemctl enable --now nfs-server`<br> 
 `sudo firewall-cmd --permanent --zone=public --add-service=nfs`<br>
 `sudo firewall-cmd --reload`<br>
 
@@ -211,8 +211,8 @@ export MPIROOT PATH LD_LIBRARY_PATH MANPATH<br>
 `sudo nano /etc/fstab`<br>
 以下のように/etc/fstabを編集する<br>
 ```conf
-192.168.20.229:/DATA   /DATA   nfs   defaults,_netdev   0  0<br>
-192.168.20.229:/home/admin/DATA   /DATA   nfs   defaults,_netdev   0  0<br>
+192.168.20.229:/DATA   /DATA   nfs   defaults,_netdev   0  0
+192.168.20.229:/home/admin/DATA   /DATA   nfs   defaults,_netdev   0  0
 ```
 `sudo systemctl daemon-reexec`<br>
 `sudo systemctl daemon-reload`<br>
@@ -228,10 +228,10 @@ export MPIROOT PATH LD_LIBRARY_PATH MANPATH<br>
 この作業を他のマシンでも行う。<br>
 また、hostfileで以下のように編集する。<br>
 ```conf
-192.168.20.229 slots=1<br>
-192.168.20.201 slots=1<br>
-192.168.20.204 slots=1<br>
-192.168.20.230 slots=1<br>
+192.168.20.229 slots=1
+192.168.20.201 slots=1
+192.168.20.204 slots=1
+192.168.20.230 slots=1
 ```
 
 ここでは、各マシンのプロセスを1に設定した。<br>
