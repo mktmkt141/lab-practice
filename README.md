@@ -166,15 +166,15 @@ dc:ドメイン名の構成要素　ou:組織内のグループ、カテゴリ�
 **MPIインストール**
 [ここからインストール](https://www.open-mpi.org/)<br>
 ローカルマシンから各vmにたいしてscpする。<br>
-`sudo dnf install openmpi openmpi-devel -y`<br>
-`tar -xvf openmpi-4.0.7.tar.gz`<br>
+`sudo dnf install openmpi openmpi-devel -y`←openmpiとその開発用パッケージをインストール<br>
+`tar -xvf openmpi-4.0.7.tar.gz`←解凍<br>
 `sudo yum install -y perl`<br>
-`sudo dnf install -y gcc-gfortran`<br>
-`./configure --prefix=/usr/local/openmpi-4.0.7 CC=gcc CXX=g++ FC=gfortran`<br>
-`make all`<br>
-`sudo make install`<br>
-`sudo nano ~/.bashrc`<br>
-一番下に以下の内容を追加する<br>
+`sudo dnf install -y gcc-gfortran`←openmpiのビルドに必要なperlとfortran用のコンパイラをインストール<br>
+`./configure --prefix=/usr/local/openmpi-4.0.7 CC=gcc CXX=g++ FC=gfortran`←インストール先を指定<br>
+`make all`←ビルド<br>
+`sudo make install`<br>←インストール<br>
+`sudo nano ~/.bashrc`←環境変数を設定<br>
+一番下に以下の内容を追加する。パスを通す<br>
 ```conf
 export PATH=/usr/lib64/openmpi/bin:$PATH
 export LD_LIBRARY_PATH=/usr/lib64/openmpi/lib:$LD_LIBRARY_PATH
@@ -185,48 +185,56 @@ MANPATH=$MPIROOT/share/man:$MANPATH
 export MPIROOT PATH LD_LIBRARY_PATH MANPATH
 ```
 そして、設定を変更。<br>
-`source ~/.bashrc`<br>
+`source ~/.bashrc`←設定を反映<br>
 
 このあとに、nfsの設定を行う。<br>
 229のサーバで<br>
-`sudo dnf install -y nfs-utils`<br>
+`sudo dnf install -y nfs-utils`←nfsサーバ用のツールをインストール<br>
 `sudo mkdir DATA`<br>
-`sudo chown admin:admin DATA` <br>
+`sudo chown admin:admin DATA` ←共有フォルダの作成と、所有者の変更<br>
 
-`sudo nano /etc/exports`<br>
-以下のように/etc/exportsを編集する<br>
+`sudo nano /etc/exports`←nfsで共有するディレクトリの設定<br>
+以下のように/etc/exportsを編集する。20.◯◯のクライアントに/home/admin/DATAの読み書き可能で共有する<br>
 ```conf
 /home/admin/DATA    192.168.20.0/24(rw,sync,no_subtree_check)<br>
 ```
 
-`sudo exportfs -ra` <br> 
-`sudo exportfs -v `  <br>
-`sudo systemctl enable --now nfs-server`<br> 
+`sudo exportfs -ra`←設定の反映<br> 
+`sudo exportfs -v `  ←確認<br>
+`sudo systemctl enable --now nfs-server`←nfsサーバを起動、自動起動設定<br> 
 `sudo firewall-cmd --permanent --zone=public --add-service=nfs`<br>
-`sudo firewall-cmd --reload`<br>
+`sudo firewall-cmd --reload`←ファイアウォールのnfs許可<br>
 
 他3台のクライアント側で<br>
 `sudo dnf install -y nfs-utils`<br>
-`sudo mkdir DATA`<br>
-`sudo nano /etc/fstab`<br>
-以下のように/etc/fstabを編集する<br>
+`sudo mkdir DATA`←クライアント用のツールのインストールと、マウント先の準備<br>
+`sudo nano /etc/fstab`←nfsクライアント用のツールとマウント先を準備する<br>
+以下のように/etc/fstabを編集する←サーバの/DATAをクライアントの/home/admin/DATAに設定する<br>
 ```conf
-192.168.20.229:/DATA   /DATA   nfs   defaults,_netdev   0  0
-192.168.20.229:/home/admin/DATA   /DATA   nfs   defaults,_netdev   0  0
+192.168.20.229:/DATA   /home/admin/DATA   nfs   defaults,_netdev   0  0
 ```
 `sudo systemctl daemon-reexec`<br>
 `sudo systemctl daemon-reload`<br>
-`sudo mount /DATA`<br>
+`sudo mount /home/admin/DATA`←サービスの再読み込みと手動マウント<br>
 
 マウントの設定を行う。<br>
-この後に、229のサーバで<br>
+この後に、229のサーバでパスワードなしでsshできるように以下の設定をする<br>
 `ssh-keygen`<br>  # Enterキー連打でOK<br>
 `ssh-copy-id admin@192.168.20.201`<br>
 `ssh-copy-id admin@192.168.20.204`<br>
 `ssh-copy-id admin@192.168.20.230`<br>
 のようにパスワードなしで他のマシンに入れるようにする。<br>
 この作業を他のマシンでも行う。<br>
-また、hostfileで以下のように編集する。<br>
+各vmの/etc/hostsファイルの中で以下のように名前を設定する。<br>
+```conf
+192.168.20.229   vm0
+192.168.20.201   vm1
+192.168.20.204   vm2
+192.168.20.230   vm3
+```
+さらに各vm◯で以下のコマンドを打つ。<br>
+`sudo hostnamectl set-hostname vm◯`
+また、hostfileで以下のように編集する。各マシンのプロセスを1に設定する<br>
 ```conf
 192.168.20.229 slots=1
 192.168.20.201 slots=1
