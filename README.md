@@ -93,7 +93,7 @@ dc:ドメイン名の構成要素　ou:組織内のグループ、カテゴリ�
 
 ここから、ssl/tlsの設定を行う。<br>
 `sudo nano /etc/ssl/openssl.conf`←証明書生成時に使用する設定ファイルを編集する<br>
-ここでは、証明書のsan(この証明書はどのホストで使えるかに関する設定)を設定した。←ここでは、どのホストでこの証明書を使えるかを定義している。また、dlp.example.comでというホスト名で証明書を指定している。
+ここでは、証明書のsan(この証明書はどのホストで使えるかに関する設定)を設定した。←ここでは、どのホストでこの証明書を使えるかを定義している。また、dlp.example.comでというホスト名で証明書を指定している。<br>
 `sudo openssl genrsa -aes128 -out /etc/pki/tls/certs/server.key 2048`←秘密鍵を作成し、`/etc/pki/tls/certs`に出力<br>
 `sudo openssl rsa -in server.key -out server.key`←パスフレーズを除去した秘密鍵に変換する（ldapサーバ起動時にパスフレーズ入力を求められないようにするため）<br>
 `sudo openssl req -utf8 -new -key server.key -out server.csr`←秘密鍵を使って、証明書署名要求（csrファイル）を作成する<br>
@@ -102,7 +102,7 @@ dc:ドメイン名の構成要素　ou:組織内のグループ、カテゴリ�
 `chown ldap:ldap /etc/openldap/certs/{server.key,server.crt}`←ファイルの所有者をldapユーザとグループに変更する（slapdが読み取れるようにするため）<br>
 `nano mod_ssl.ldif`←ldapサーバにssl/tlsを有効化する設定を書いたldifファイルを作成する<br>
 `sudo ldapmodify -Y EXTERNAL -H ldapi:/// -f mod_ssl.ldif`←mod_ssl/ldifを読み込んで、ssl/tlsを有効化する設定をサーバに反映させる<br>
-`sudo firewall-cmd --add-service={ldap,ldaps}`←ファイアウォールの設定を行う。
+`sudo firewall-cmd --add-service={ldap,ldaps}`←ファイアウォールの設定を行う。<br>
 
 ここから、サーバにユーザーを登録していく。<br>
 `sudo slappaswd`←ユーザのパスワードの設定を行う。<br>
@@ -143,7 +143,7 @@ dc:ドメイン名の構成要素　ou:組織内のグループ、カテゴリ�
 ```
 
 その後に<br>
-` ldapsearch -H ldaps://dlp.example.com -D "cn=admin,dc=example,dc=com" -W -b "dc=example,dc=com"`<br?
+` ldapsearch -H ldaps://dlp.example.com -D "cn=admin,dc=example,dc=com" -W -b "dc=example,dc=com"`<br>
 を打ち、正常な出力が得られたので、セキュアな通信が上手くいったことが確認できた。<br>
 今までの設定を202、201のvmの中でも同様にする。<br>
 
