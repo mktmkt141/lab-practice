@@ -251,3 +251,19 @@ export MPIROOT PATH LD_LIBRARY_PATH MANPATH
 `mpirun --hostfile hostfile ./sum`<br>
 
 
+### 🔹 課題2：slurmクラスタ構築
+vm0をマスターノード、vm0-vm3をワーカーノードとするクラスタの構築を行う。
+
+vm0(229)で以下のコマンドを打つ。<br>
+`sudo dnf install epel-release -y`（これは全てのvmで共通）<br>
+`sudo dnf -y install slurm slurm-slurmd slurm-slurmctld munge`(これは全てのvmで実行）<br>
+`sudo /usr/sbin/create-munge-key`<br>
+`sudo chown munge:munge /etc/munge/munge.key`<br>
+`sudo chmod 400 /etc/munge/munge.key`<br>
+`scp /etc/munge/munge.key admin@192.168.20.230:/tmp/`<br>
+`scp /etc/munge/munge.key admin@192.168.20.201:/tmp/`<br>
+`scp /etc/munge/munge.key admin@192.168.20.204:/tmp/`<br>
+この後に、全てのノードで以下のコマンドを打つ。<br>
+`sudo systemctl enable munge`<br>
+`sudo systemctl start munge`<br>
+`sudo systemctl status munge`<br>
