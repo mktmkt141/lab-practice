@@ -130,7 +130,7 @@ dc:ドメイン名の構成要素　ou:組織内のグループ、カテゴリ�
 `su - mkt`←mktにユーザを変更<br>
 全てのvmから同じコマンドでログインできるかを確認する。<br>
 #### セキュアな通信が行えるかを確認する<br>
-→「ldaps://~」でldapsearcできるかを確認する。<br>
+→「ldaps://~」でldapsearchできるかを確認する。<br>
 何もしていない段階で、` ldapsearch -H ldaps://dlp.example.com -D "cn=admin,dc=example,dc=com" -W -b "dc=example,dc=com"`を実行すると、自己証明書をクライアント側に信頼させることと、名前解決ができていないため、エラーが吐かれる。<br>
 
 そこで、229（サーバ側）で<br>
@@ -150,7 +150,75 @@ dc:ドメイン名の構成要素　ou:組織内のグループ、カテゴリ�
 
 その後に<br>
 ` ldapsearch -H ldaps://dlp.example.com -D "cn=admin,dc=example,dc=com" -W -b "dc=example,dc=com"`<br>
-を打ち、正常な出力が得られたので、セキュアな通信が上手くいったことが確認できた。<br>
+を打ち、正常な出力が得られたので、セキュアな通信が上手くいったことが確認できた。↓結果<br>
+```conf
+# extended LDIF
+
+# 
+
+# LDAPv3
+
+# base <dc=example,dc=com> with scope subtree
+
+# filter: (objectclass=*)
+
+# requesting: ALL
+
+# 
+
+# [example.com](http://example.com/)
+
+dn: dc=example,dc=com
+objectClass: top
+objectClass: dcObject
+objectClass: organization
+o: Example
+dc: example
+
+# People, [example.com](http://example.com/)
+
+dn: ou=People,dc=example,dc=com
+objectClass: organizationalUnit
+ou: People
+
+# Group, [example.com](http://example.com/)
+
+dn: ou=Group,dc=example,dc=com
+objectClass: organizationalUnit
+ou: Group
+
+# mkt, People, [example.com](http://example.com/)
+
+dn: uid=mkt,ou=People,dc=example,dc=com
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: mkt
+sn: mkt
+userPassword:: e1NTSEF9cnp1WTlXcjR2blhwcVNYa2Q0bkdlQWNRcDVINjUxVlU=
+loginShell: /bin/bash
+uidNumber: 2000
+gidNumber: 2000
+homeDirectory: /home/mkt
+uid: mkt
+
+# mkt, Group, [example.com](http://example.com/)
+
+dn: cn=mkt,ou=Group,dc=example,dc=com
+objectClass: posixGroup
+cn: mkt
+gidNumber: 2000
+memberUid: mkt
+
+# search result
+
+search: 2
+result: 0 Success
+
+# numResponses: 6
+
+# numEntries: 5
+```
 今までの設定を202、201のvmの中でも同様にする。<br>
 
 #### 動機状態の確認<br>
