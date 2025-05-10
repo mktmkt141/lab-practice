@@ -253,8 +253,29 @@ export MPIROOT PATH LD_LIBRARY_PATH MANPATH
 `mpicc hello.c -o hello`<br>
 `mpicc sum.c -o sum`<br>
 この後にhello worldプログラムと、並列計算用のプログラムを実行する。<br>
+
 `mpirun --hostfile hostfile ./hello`<br>
+以下のように各マシンからの返答があれば成功。<br>
+```conf
+Hello World, I am 0 of 4 running on vm0
+Hello World, I am 1 of 4 running on vm1
+Hello World, I am 2 of 4 running on vm2
+Hello World, I am 3 of 4 running on vm3
+```
 `mpirun --hostfile hostfile ./sum`<br>
+以下のように各マシンから計算結果が返ってきたら成功。<br>
+```conf
+[プロセス0 - vm0] 4個のプロセスで協力して1から1000までの和を求めます！
+[プロセス0 - vm0] 1から250までの和を計算します...
+[プロセス0 - vm0] 1から250までの和は 31375 でした！
+[プロセス2 - vm2] 501から750までの和を計算します...
+[プロセス2 - vm2] 501から750までの和は 156375 でした！
+[プロセス3 - vm3] 751から1000までの和を計算します...
+[プロセス3 - vm3] 751から1000までの和は 218875 でした！
+[プロセス1 - vm1] 251から500までの和を計算します...
+[プロセス1 - vm1] 251から500までの和は 93875 でした！
+[プロセス0 - vm0] 1から1000までの和は 500500 でした！
+```
 
 
 ### 🔹 課題2：slurmクラスタ構築
