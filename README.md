@@ -71,7 +71,7 @@ vm0(229)をldapサーバ、vm1(230)、vm2(201)、vm3(202)をldapクライアン�
 `sudo dnf install epel-release`←epleリポジトリ（yum等にはないパッケージををインストールするためのサードパーティーリポジトリ)のインストールを行う<br>
 `sudo yum -y install openldap*`←opneldap関連のパッケージをまとめてインストールするためのコマンド<br>
 `sudo slappasswd`←ldap管理者用のパスワードをを暗号化形式で発行する<br>
-`sudo nano chrootpw.ldif`<br>←ldapの管理者のパスワードを設定、管理するファイルの編集<br>
+`sudo nano chrootpw.ldif`←ldapの管理者のパスワードを設定、管理するファイルの編集<br>
 `sudo ldapadd -Y EXTERNAL -H ldapi:/// -f chrootpw.ldif`←管理者パスワードの更新<br>
 `sudo nano ldaproot.ldif`←openldapの設定情報に関するldifファイルを作成する<br>
 ldaproot.ldifの中身はこちらです。<br>
@@ -172,7 +172,7 @@ dc:ドメイン名の構成要素　ou:組織内のグループ、カテゴリ�
 `sudo dnf install -y gcc-gfortran`←openmpiのビルドに必要なperlとfortran用のコンパイラをインストール<br>
 `./configure --prefix=/usr/local/openmpi-4.0.7 CC=gcc CXX=g++ FC=gfortran`←インストール先を指定<br>
 `make all`←ビルド<br>
-`sudo make install`<br>←インストール<br>
+`sudo make install`←インストール<br>
 `sudo nano ~/.bashrc`←環境変数を設定<br>
 一番下に以下の内容を追加する。パスを通す<br>
 ```conf
