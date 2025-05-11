@@ -319,7 +319,9 @@ export MPIROOT PATH LD_LIBRARY_PATH MANPATH
 ここでは、各マシンのプロセスを1に設定した。<br>
 その後、コンパイする。<br>
 `mpicc hello.c -o hello`<br>
+[hello.c](https://github.com/mktmkt141/lab-practice/blob/main/hello.c)<br>
 `mpicc sum.c -o sum`<br>
+[sum.c](https://github.com/mktmkt141/lab-practice/blob/main/sum.c)<br>
 この後にhello worldプログラムと、並列計算用のプログラムを実行する。<br>
 
 `mpirun --hostfile hostfile ./hello`<br>
