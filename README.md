@@ -350,15 +350,143 @@ Hello World, I am 3 of 4 running on vm3
 vm0をマスターノード、vm0-vm3をワーカーノードとするクラスタの構築を行う。
 
 vm0(229)で以下のコマンドを打つ。<br>
-`sudo dnf install epel-release -y`（これは全てのvmで共通）<br>
-`sudo dnf -y install slurm slurm-slurmd slurm-slurmctld munge`(これは全てのvmで実行）<br>
-`sudo /usr/sbin/create-munge-key`<br>
-`sudo chown munge:munge /etc/munge/munge.key`<br>
-`sudo chmod 400 /etc/munge/munge.key`<br>
+`sudo dnf install epel-release -y`（これは全てのvmで共通）←epelリポジトリの追加を行う<br>
+`sudo dnf -y install slurm slurm-slurmd slurm-slurmctld munge`(これは全てのvmで実行）←スラームの基本パッケージとワーカーノードで動作するデーモン、マスターノードで動作するコントローラーデーモンをインストールする。また、ノード間で通信を行うための認証サービスmungeをインストールする。<br>
+`sudo /usr/sbin/create-munge-key`←mungeの認証使用する秘密鍵の作成を行う。<br>
+`sudo chown munge:munge /etc/munge/munge.key`←mungeの秘密鍵の所有者をとグループをmungeに変える。<br>
+`sudo chmod 400 /etc/munge/munge.key`←ファイルの所有者にのみ読み取り権限を与える。<br>
+次に、マスターノードの秘密鍵をワーカーノードの/tmpファイルにコピーする。<br>
 `scp /etc/munge/munge.key admin@192.168.20.230:/tmp/`<br>
 `scp /etc/munge/munge.key admin@192.168.20.201:/tmp/`<br>
 `scp /etc/munge/munge.key admin@192.168.20.204:/tmp/`<br>
 この後に、全てのノードで以下のコマンドを打つ。<br>
-`sudo systemctl enable munge`<br>
-`sudo systemctl start munge`<br>
+`sudo systemctl enable munge`←mungeサービスを全てのノードで自動起動するようにする。<br>
+`sudo systemctl start munge`←mungeサービスの起動<br>
 `sudo systemctl status munge`<br>
+
+次に、マスターノード(229)の/etc/slurm/slurm.confの内容を以下のように記述する。<br>
+```conf
+# slurm.conf
+
+# Cluster: cluster
+
+# Master Node: vm0 (192.168.20.229)
+
+# Worker Nodes: vm1 (192.168.20.201), vm2 (192.168.20.204), vm3 (192.168.20.230)
+
+# --- General Parameters ---
+
+ClusterName=cluster
+SlurmctldHost=vm0 # マスターノードのホスト名
+
+# SlurmctldHost=backup\_controller\_hostname # バックアップコントローラがある場合は追記
+
+ControlMachine=vm0 # SlurmctldHostと同じマスターノードのホスト名を指定
+\#ControlAddr=192.168.20.229 # マスターノードのIPアドレス (ホスト名から解決できれば省略可)
+
+SlurmUser=slurm
+SlurmdUser=root
+
+AuthType=auth/munge
+
+# AuthInfo=/var/run/munge/munge.socket.2
+
+# --- Logging and Directories ---
+
+SlurmctldLogFile=/var/log/slurm/slurmctld.log
+SlurmdLogFile=/var/log/slurm/slurmd.log
+SlurmdSpoolDir=/var/spool/slurmd
+StateSaveLocation=/var/spool/slurmctld
+PluginDir=/usr/lib64/slurm
+
+# --- Timers (秒単位) ---
+
+InactiveLimit=0
+KillWait=30
+MinJobAge=300
+WaitTime=0
+
+# --- Scheduling ---
+
+SchedulerType=sched/backfill
+SelectType=select/cons\_tres
+SelectTypeParameters=CR\_Core\_Memory
+
+# --- Job Management ---
+
+FirstJobId=1
+MaxJobCount=50000
+JobCompType=jobcomp/none
+\#JobCompLoc=/var/log/slurm\_jobcomp.txt
+
+# --- Ports ---
+
+SlurmctldPort=6817
+SlurmdPort=6818
+
+# --- Process Tracking ---
+
+ProctrackType=proctrack/cgroup
+TaskPlugin=task/cgroup,task/affinity
+
+# --- Node Definitions ---
+
+# CPUコア数: 各ノード 8 コア
+
+# RealMemory: 各ノード 3.6GiB (約3686MB) のうち、3500MB をジョブ利用可能メモリとして設定
+
+# (3686MB - OS等予約分186MB = 3500MB で計算。この値は調整可能です)
+
+NodeName=vm0 NodeAddr=192.168.20.229 CPUs=8 RealMemory=3500 State=UNKNOWN
+NodeName=vm1 NodeAddr=192.168.20.201 CPUs=8 RealMemory=3500 State=UNKNOWN
+NodeName=vm2 NodeAddr=192.168.20.204 CPUs=8 RealMemory=3500 State=UNKNOWN
+NodeName=vm3 NodeAddr=192.168.20.230 CPUs=8 RealMemory=3500 State=UNKNOWN
+
+# --- Partition Configuration ---
+
+# パーティション名を 'mycluster' とし、ノードを指定します。
+
+# マスターノード(vm0)を計算リソースとして使用する場合:
+
+PartitionName=mycluster Nodes=vm0,vm1,vm2,vm3 Default=YES MaxTime=INFINITE State=UP
+
+
+# --- オプション: Epilog と Prolog スクリプト ---
+
+# Epilog=/etc/slurm/epilog.sh
+
+# Prolog=/etc/slurm/prolog.sh
+
+```
+
+次に、全てのノードで以下のように編集する。<br>
+`sudo useradd -m slurm`←新しいユーザーslurmを/home/slurmに追加する。<br>
+`sudo mkdir -p /var/spool/slurmctld /var/spool/slurmd /var/log/slurm`←スラームコントローラとスラームデーモンが一時的なデータを保存するディレクトリを作る。また、スラーム関連のログファイルを保存するためのディレクトリを作る。<br>
+`sudo chown slurm:slurm /var/spool/slurmctld /var/spool/slurmd /var/log/slurm`←上で作ったディレクトリの所有者とグループの変更を行う。<br>
+
+次に、マスターノードで以下のコマンドを打つ。スラーム設定ファイルをワーカーノードにコピーする。<br>
+`scp /etc/slurm/slurm.conf admin@192.168.20.230:/etc/slurm/`<br>
+`scp /etc/slurm/slurm.conf admin@192.168.20.201:/etc/slurm/`<br>
+`scp /etc/slurm/slurm.conf admin@192.168.20.204:/etc/slurm/`<br>
+スラームコントローラサービスの自動起動設定と、起動を行う。<br>
+`sudo systemctl enable slurmctld`<br>
+`sudo systemctl start slurmctld`<br>
+
+全てのノードで以下のようにコマンドを打つ。ワーカーノードでスラームデーモンサービスの自動起動と起動を行う。<br>
+`sudo systemctl enable slurmd`<br>
+`sudo systemctl start slurmd`<br>
+
+マスターノードでスラームクラスタの情報を確認するためのコマンドを打つ。「idle」と表示されていればよい。<br>
+`sinfo`<br>
+
+
+
+
+
+
+
+
+
+
+
+
