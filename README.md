@@ -511,7 +511,7 @@ vm3
 vm2
 vm1
 ```
-続いて、(このシェルスクリプト)[https://github.com/mktmkt141/lab-practice/blob/main/mpi.sh]をもとにMPIを実行するジョブを投げ、出力されたファイルに期待される結果が書き込まれているかを確認する。<br>
+続いて、[このシェルスクリプト](https://github.com/mktmkt141/lab-practice/blob/main/mpi.sh)をもとにMPIを実行するジョブを投げ、出力されたファイルに期待される結果が書き込まれているかを確認する。<br>
 `sbatch mpi.sh`←バッチジョブをキューに投下する<br>
 ```conf
 [admin@vm0 ~]$ cat slurm-26.out
