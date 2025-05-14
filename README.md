@@ -396,11 +396,10 @@ vm0(229)で以下のコマンドを打つ。<br>
 
 ClusterName=cluster
 SlurmctldHost=vm0 # マスターノードのホスト名
-
+MpiDefault=pmix
 # SlurmctldHost=backup\_controller\_hostname # バックアップコントローラがある場合は追記
-
-ControlMachine=vm0 # SlurmctldHostと同じマスターノードのホスト名を指定
-\#ControlAddr=192.168.20.229 # マスターノードのIPアドレス (ホスト名から解決できれば省略可)
+#ControlMachine=vm0 # SlurmctldHostと同じマスターノードのホスト名を指定
+#ControlAddr=192.168.20.229 # マスターノードのIPアドレス (ホスト名から解決できれば省略可)
 
 SlurmUser=slurm
 SlurmdUser=root
@@ -435,7 +434,7 @@ SelectTypeParameters=CR\_Core\_Memory
 FirstJobId=1
 MaxJobCount=50000
 JobCompType=jobcomp/none
-\#JobCompLoc=/var/log/slurm\_jobcomp.txt
+JobCompLoc=/var/log/slurm_jobcomp.txt
 
 # --- Ports ---
 
@@ -496,10 +495,32 @@ PartitionName=mycluster Nodes=vm0,vm1,vm2,vm3 Default=YES MaxTime=INFINITE State
 
 マスターノードでスラームクラスタの情報を確認するためのコマンドを打つ。「idle」と表示されていればよい。<br>
 `sinfo`<br>
+以下のように出力されていればよい。<br>
+```conf
+PARTITION  AVAIL  TIMELIMIT  NODES  STATE NODELIST
+mycluster*    up   infinite      4   idle vm[0-3]
+```
 
-
-
-
+続いて、hostnameプログラムを実行する。[このシェルスクリプト](https://github.com/mktmkt141/lab-practice/blob/main/hostname.sh)をもとにホスト名を出力するジョブを投げる。出力されたファイルにホスト名が表示されているかを確認する。<br>
+マスターノードで以下のように出力されればよい。<br>
+`sbatch hostname.sh`←
+```conf
+[admin@vm0 ~]$ cat slurm-11.out
+vm0
+vm3
+vm2
+vm1
+```
+続いて、(このシェルスクリプト)[https://github.com/mktmkt141/lab-practice/blob/main/mpi.sh]をもとにMPIを実行するジョブを投げ、出力されたファイルに期待される結果が書き込まれているかを確認する。<br>
+`sbatch mpi.sh`←バッチジョブをキューに投下する<br>
+```conf
+[admin@vm0 ~]$ cat slurm-26.out
+Hello World from vm3, I am rank 3 of 4
+Hello World from vm2, I am rank 2 of 4
+Hello World from vm0, I am rank 0 of 4
+Hello World from vm1, I am rank 1 of 4
+```
+このように各プロセスからの出力が表示されていれば良い。<br>
 
 
 
