@@ -254,7 +254,7 @@ result: 0 Success
 この課題では、vm4台を用いて並列計算しています。まずは、各マシンでmpiのインストール、コンパイラの設定、サンプルプログラム(NFSを用いた並列計算)の実装を行います。<br>
 
 **MPIインストール**
-[ここからインストール](https://www.open-mpi.org/)<br>
+
 ローカルマシンから各vmにたいしてscpする。<br>
 `sudo dnf install openmpi openmpi-devel -y`←openmpiとその開発用パッケージをインストール<br>
 `echo 'export PATH=/usr/lib64/openmpi/bin:$PATH' >> ~/.bashrc`<br>
@@ -263,6 +263,7 @@ result: 0 Success
 上のコマンドでパスを通してください<br>
 
 以下はdnfインストールできなかった時のためのコマンドで、自前ビルドです。おすすめしません。dnfでインストールした後に、パスを通してください<br>
+[ここからインストール](https://www.open-mpi.org/)<br>
 `tar -xvf openmpi-4.0.7.tar.gz`←解凍<br>
 `sudo yum install -y perl`<br>
 `sudo dnf install -y gcc-gfortran`←openmpiのビルドに必要なperlとfortran用のコンパイラをインストール<br>
