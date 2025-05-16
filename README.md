@@ -257,6 +257,12 @@ result: 0 Success
 [ここからインストール](https://www.open-mpi.org/)<br>
 ローカルマシンから各vmにたいしてscpする。<br>
 `sudo dnf install openmpi openmpi-devel -y`←openmpiとその開発用パッケージをインストール<br>
+`echo 'export PATH=/usr/lib64/openmpi/bin:$PATH' >> ~/.bashrc`<br>
+`echo 'export LD_LIBRARY_PATH=/usr/lib64/openmpi/lib:$LD_LIBRARY_PATH' >> ~/.bashrc`<br>
+`source ~/.bashrc`<br>
+上のコマンドでパスを通してください<br>
+
+以下はdnfインストールできなかった時のためのコマンドで、自前ビルドです。おすすめしません。dnfでインストールした後に、パスを通してください<br>
 `tar -xvf openmpi-4.0.7.tar.gz`←解凍<br>
 `sudo yum install -y perl`<br>
 `sudo dnf install -y gcc-gfortran`←openmpiのビルドに必要なperlとfortran用のコンパイラをインストール<br>
@@ -266,13 +272,10 @@ result: 0 Success
 `sudo nano ~/.bashrc`←環境変数を設定<br>
 一番下に以下の内容を追加する。パスを通す<br>
 ```conf
-export PATH=/usr/lib64/openmpi/bin:$PATH
-export LD_LIBRARY_PATH=/usr/lib64/openmpi/lib:$LD_LIBRARY_PATH
 MPIROOT=/usr/local/openmpi-4.0.7
 PATH=$MPIROOT/bin:$PATH
 LD_LIBRARY_PATH=$MPIROOT/lib:$LD_LIBRARY_PATH
 MANPATH=$MPIROOT/share/man:$MANPATH
-export MPIROOT PATH LD_LIBRARY_PATH MANPATH
 ```
 そして、設定を変更。<br>
 `source ~/.bashrc`←設定を反映<br>
