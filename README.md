@@ -290,7 +290,7 @@ MANPATH=$MPIROOT/share/man:$MANPATH
 `sudo nano /etc/exports`←nfsで共有するディレクトリの設定<br>
 以下のように/etc/exportsを編集する。20.◯◯のクライアントに/home/admin/DATAの読み書き可能で共有する<br>
 ```conf
-~/home/admin/DATA    192.168.20.0/24(rw,sync,no_subtree_check)~
+/DATA    192.168.20.0/24(rw,sync,no_subtree_check)
 ```
 
 `sudo exportfs -ra`←設定の反映<br> 
