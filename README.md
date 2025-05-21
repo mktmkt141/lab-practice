@@ -97,6 +97,22 @@ vm0(229)をldapサーバ、vm1(230)、vm2(201)、vm3(202)をldapクライアン�
 `sudo ldapadd -Y EXTERNAL -H ldapi:/// -f chrootpw.ldif`←管理者パスワードの更新<br>
 `sudo nano ldaproot.ldif`←openldapの設定情報に関するldifファイルを作成する<br>
 ldaproot.ldifの中身はこちらです。<br>
+'''conf
+dn: olcDatabase={2}mdb,cn=config
+changetype: modify
+replace: olcSuffix
+olcSuffix: dc=example,dc=com
+
+dn: olcDatabase={2}mdb,cn=config
+changetype: modify
+replace: olcRootDN
+olcRootDN: cn=admin,dc=example,dc=com
+
+dn: olcDatabase={2}mdb,cn=config
+changetype: modify
+replace: olcRootPW
+olcRootPW: {SSHA}X3n4mCAqsaDQAz5sMq6Hn8POsH4uLONm
+'''
 まずは、olcsuffixでldapディレクトリの検索ベースDN（ディレクトリルート）を指定する。dc=example、dc=comがルートになる。ここにldapに登録されるデータが集まる。olcrootdnで管理者dnの設定をする。ldap行う際のログインid的なものを作る。次に、olcrootpwでolcrootdnに対応するパスワードのハッシュを設定する。<br>
 `sudo ldapmodify -Y EXTERNAL -H ldapi:/// -f ldaproot.ldif`←ldaproot.ldifファイルをldapサーバに反映させる<br>
 続いて、自分のドメイン名の設定と、基本的なスキーマの読み込みを行う。<br>
@@ -104,6 +120,23 @@ ldaproot.ldifの中身はこちらです。<br>
 `ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/nis.ldif`←unixユーザの情報管理に必要な属性定義<br>
 `ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/inetorgperson.ldif`←一般的な人の情報を表すオブジェクトクラスの追加<br>
 `sudo nano basedomain.ldif`<br>
+basedomain.ldifの中身はこちらです。<br>
+'''conf
+dn: dc=example,dc=com
+objectClass: top
+objectClass: dcObject
+objectClass: organization
+o: Example
+dc: example
+
+dn: ou=People,dc=example,dc=com
+objectClass: organizationalUnit
+ou: People
+
+dn: ou=Group,dc=example,dc=com
+objectClass: organizationalUnit
+ou: Group
+'''
 `sudo ldapadd -x -D "cn=admin,dc=example,dc=com" -W -f basedomain.ldif`←ldapのデータツリーのルートの定義、その反映<br>
 
 
