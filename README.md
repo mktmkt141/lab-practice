@@ -162,6 +162,25 @@ dc:ドメイン名の構成要素　ou:組織内のグループ、カテゴリ�
 ここから、サーバにユーザーを登録していく。<br>
 `sudo slappaswd`←ユーザのパスワードの設定を行う。<br>
 `nano ldapuser.ldif`←ユーザー名をmktにして登録<br>
+```conf
+dn: uid=mkt,ou=People,dc=example,dc=com
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: mkt
+sn: mkt
+userPassword: {SSHA}rzuY9Wr4vnXpqSXkd4nGeAcQp5H651VU
+loginShell: /bin/bash
+uidNumber: 2000
+gidNumber: 2000
+homeDirectory: /home/mkt
+
+dn: cn=mkt,ou=Group,dc=example,dc=com
+objectClass: posixGroup
+cn: mkt
+gidNumber: 2000
+memberUid: mkt
+```
 `sudo ldapadd -x -D "cn=admin,dc=example,dc=com" -W -f ldapuser.ldif`<br>
 **ここでは、mktという名前のユーザーを登録した。**<br>
 
