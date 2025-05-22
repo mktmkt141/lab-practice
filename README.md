@@ -379,7 +379,7 @@ MANPATH=$MPIROOT/share/man:$MANPATH
 192.168.20.230   vm3
 ```
 さらに各vm◯で以下のコマンドを打つ。<br>
-`sudo hostnamectl set-hostname vm◯`
+`sudo hostnamectl set-hostname vm◯`<br>
 また、hostfileで以下のように編集する。各マシンのプロセスを1に設定する<br>
 ```conf
 192.168.20.229 slots=1
