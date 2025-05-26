@@ -579,9 +579,31 @@ Hello World from vm1, I am rank 1 of 4
 このように各プロセスからの出力が表示されていれば良い。<br>
 
 ### configlessによるslurm 構築
-
-vm0からワーカーノードに対して、slurm.conf をコピーせずにvm0にだけslurm.confを用意してクラスターを構築することができるようになる。<br>
+マスターノードからワーカーノードに対してslurm.confをコピーせずに（ワーカーノードでslurm.confを準備しなくてよい）slurmクラスタを構築できるように設定する<br>
 ここではその設定手順を示す。<br>
+## まずはマスターノードで以下のコマンドを叩く
+`sudo nano /etc/slurm/slurm.conf`←マスターノードのslurm.confファイルに以下の行を追加する。<br>
+```conf
+SlurmctldParameters=enable_configless
+```
+`sudo systemctl restart slurmctld`←slurmctldの再起動を行う<br>
+
+##　次にワーカーノードで以下のコマンドを打つ
+`sudo rm -f /etc/slurm/slurm.conf`←ワーカーノードのslurm.confを削除する<br>
+`sudo systemctl stop slurmd`←slurmデーモンを停止する<br>
+`echo 'SLURMD_OPTIONS="--conf-server=vm0:6817"' | sudo tee /etc/sysconfig/slurmd`←slurmデーモンの起動時にマスターのvm0:6817から設定を受け取るようにする<br>
+`sudo systemctl daemon-reexec`
+`sudo systemctl daemon-reload`←/etc/sysconfig/slurmdの設定を反映させる<br>
+`sudo systemctl restart slurmd`←再起動<br>
+
+ここまで終わったら、マスターノードで以下のコマンドを叩く<br>
+`sinfo`<br>
+```conf
+[admin@vm0 ~]$ sinfo
+PARTITION  AVAIL  TIMELIMIT  NODES  STATE NODELIST
+mycluster*    up   infinite      4   idle vm[0-3]
+```
+のように各ノードがidleになっていたら完了。<br>
 
 
 
