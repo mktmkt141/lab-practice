@@ -26,6 +26,7 @@ cpu
 2. [Part 2:分散システム構築](#part-2分散システム構築)<br>
    ・[課題1:MPI環境構築](#-課題1MPI環境構築)<br>
    ・[課題2:slurmクラスタ構築](#-課題2slurmクラスタ構築)<br>
+   ・[追加課題：configlessによるslurm構築](#追加課題configlessによるslurm-構築)
    
 
 ---
