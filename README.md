@@ -578,6 +578,10 @@ Hello World from vm1, I am rank 1 of 4
 ```
 このように各プロセスからの出力が表示されていれば良い。<br>
 
+### configlessによるslurm 構築
+
+vm0からワーカーノードに対して、slurm.conf をコピーせずにvm0にだけslurm.confを用意してクラスターを構築することができるようになる。<br>
+ここではその設定手順を示す。<br>
 
 
 
