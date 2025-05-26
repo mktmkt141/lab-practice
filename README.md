@@ -559,7 +559,7 @@ mycluster*    up   infinite      4   idle vm[0-3]
 
 続いて、hostnameプログラムを実行する。[このシェルスクリプト](https://github.com/mktmkt141/lab-practice/blob/main/hostname.sh)をもとにホスト名を出力するジョブを投げる。出力されたファイルにホスト名が表示されているかを確認する。<br>
 マスターノードで以下のように出力されればよい。<br>
-`sbatch hostname.sh`←
+`sbatch hostname.sh`←バットジョブをキューに投下する<br>
 ```conf
 [admin@vm0 ~]$ cat slurm-11.out
 vm0
