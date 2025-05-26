@@ -581,14 +581,14 @@ Hello World from vm1, I am rank 1 of 4
 ### configlessによるslurm 構築
 マスターノードからワーカーノードに対してslurm.confをコピーせずに（ワーカーノードでslurm.confを準備しなくてよい）slurmクラスタを構築できるように設定する<br>
 ここではその設定手順を示す。<br>
-## まずはマスターノードで以下のコマンドを叩く
+#### まずはマスターノードで以下のコマンドを叩く
 `sudo nano /etc/slurm/slurm.conf`←マスターノードのslurm.confファイルに以下の行を追加する。<br>
 ```conf
 SlurmctldParameters=enable_configless
 ```
 `sudo systemctl restart slurmctld`←slurmctldの再起動を行う<br>
 
-##　次にワーカーノードで以下のコマンドを打つ
+#### 次にワーカーノードで以下のコマンドを打つ
 `sudo rm -f /etc/slurm/slurm.conf`←ワーカーノードのslurm.confを削除する<br>
 `sudo systemctl stop slurmd`←slurmデーモンを停止する<br>
 `echo 'SLURMD_OPTIONS="--conf-server=vm0:6817"' | sudo tee /etc/sysconfig/slurmd`←slurmデーモンの起動時にマスターのvm0:6817から設定を受け取るようにする<br>
