@@ -578,7 +578,7 @@ Hello World from vm1, I am rank 1 of 4
 ```
 このように各プロセスからの出力が表示されていれば良い。<br>
 
-### configlessによるslurm 構築
+### 🔹追加課題：configlessによるslurm 構築
 マスターノードからワーカーノードに対してslurm.confをコピーせずに（ワーカーノードでslurm.confを準備しなくてよい）slurmクラスタを構築できるように設定する<br>
 ここではその設定手順を示す。<br>
 #### まずはマスターノードで以下のコマンドを叩く
